@@ -29,6 +29,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+
+//clase donde se agrega el tipo de sensor
 public class EpSensor extends IoTEntryPoint
 {
 	private String idSensor;
@@ -156,8 +158,12 @@ public class EpSensor extends IoTEntryPoint
 		formPanel.add(buttonsPanel);
 
 		//Get SmartThings----------------------------------
-		entityService.getEntity(new SmartThingDTO(), null, new AsyncCallback<List<SmartThingDTO>>()
-		{
+		//entityService.getEntity(new SmartThingDTO(), null, new AsyncCallback<List<SmartThingDTO>>()
+		//{
+			
+			entityService.getEntity(new SmartThingDTO(), null, new AsyncCallback<List<SmartThingDTO>>() {
+			
+	
 
 			@Override
 			public void onFailure(Throwable caught)

@@ -27,10 +27,13 @@ public interface EntityStoreServiceAsync
 
 	public <T extends IoTEntityDTO> void deleteEntity(T entityDTO, Integer id,
 			AsyncCallback<Void> callback);
-
-	public void getSensorData(Integer idsensor, Integer idexperiment, AsyncCallback<List<MeasureDTO>> callback);
 	
+
+    public void getSensorData(Integer idsensor, Integer idexperiment, AsyncCallback<List<MeasureDTO>> callback);
+ 
 	public <T extends IoTTypeSensorDTO> void storeSensorType(T typeSensorDTO, AsyncCallback<Void> callback);
 	
 	public <T extends IoTTypeSensorDTO> void getSensorType(AsyncCallback<List<T>> callback);
+	
+
 }

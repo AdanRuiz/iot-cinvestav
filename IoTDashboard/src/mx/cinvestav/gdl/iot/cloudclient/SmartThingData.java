@@ -3,6 +3,7 @@ package mx.cinvestav.gdl.iot.cloudclient;
 public class SmartThingData
 {
 	private int smartThingId;
+
 	private SensorData[] sensorData;
 
 	public int getSmartThingId()

@@ -4,12 +4,14 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 
 import mx.cinvestav.gdl.iot.cloudclient.Data;
 import mx.cinvestav.gdl.iot.cloudclient.SensorData;
@@ -23,6 +25,9 @@ import mx.cinvestav.gdl.iot.validation.UpdateRequestValidator;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.api.search.query.ExpressionParser.condExpr_return;
+import com.google.cloud.sql.jdbc.Statement;
+import com.mysql.jdbc.ResultSet;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -32,7 +37,9 @@ import org.apache.commons.codec.binary.Base64;
 @Api(name = "iotService", version = "v1")
 public class IoTService
 {
+	private static final String Conexion = null;
 	private Logger logger = Logger.getLogger(this.getClass().getName());
+
 
 	@ApiMethod(name = "updateData", httpMethod = "post")
 	public UpdateDataResponse updateData(UpdateDataRequest request) throws NotFoundException
@@ -55,17 +62,19 @@ public class IoTService
 					try
 					{
 						em = DAO.getEntityManager();
+					
 						tx = em.getTransaction();
 						tx.begin();
 						for (SmartThingData thing_data : thing_data_array)
 						{
 							SensorData[] sensor_data_array = thing_data.getSensorData();
+							
 							for (SensorData sensor_data : sensor_data_array)
 							{
 								Data[] measures = sensor_data.getMeasures();
 								for (Data m : measures)
 								{
-									// create and persist the new measure
+									/*create and persist the new measure*/
 									Measure measureEntity = new Measure();
 									measureEntity.setMeasure(m.getData());
 									Date parse = dateFormat.parse(m.getTime());
@@ -73,11 +82,31 @@ public class IoTService
 									measureEntity.setIdsensor(sensor_data.getSensorId());
 									measureEntity.setIdthing(thing_data.getSmartThingId());
 									measureEntity.setImage(Base64.decodeBase64(m.getImage()));
-									measureEntity.setIdexperiment(m.getIdexperiment());
-									measureEntity.setCharted(m.getCharted());
-									em.persist(measureEntity);
-								}
-							}
+									
+						/* 1. identificar si es un smartthing con experimentos automatizados*/
+									int idexperimento =m.getIdexperiment();
+									boolean experimentoAutomatizado = false;
+									//if(thing_data.getSmartThingId() == 3)
+									if(idexperimento == 0)
+										experimentoAutomatizado = true;
+									
+				       /*2. Determinar el ultimo o mas nuevo idexperimento y usarlo
+						    declaramos una variable nueva Idexperimento, si la variable nueva Idexperimento = a el ultimo o mas nuevo experimento
+							de la base de datos lo mandamos llamar	*/	
+									
+									 
+									 if(experimentoAutomatizado){
+										 idexperimento = DAO.getExperimentThing(thing_data.getSmartThingId());
+									 }
+										 
+				                     measureEntity.setIdexperiment(idexperimento);
+									 measureEntity.setCharted(m.getCharted());
+							     	 em.persist(measureEntity);
+							   }
+			 
+							}  	
+									 
+							
 							em.flush();
 						}
 						tx.commit();
@@ -85,13 +114,16 @@ public class IoTService
 						res.setStatus(200);
 					}
 					catch (Exception e)
+					
 					{
 						if (tx != null && tx.isActive())
 						{
 							tx.rollback();
 						}
 						e.printStackTrace();
+						
 						logger.log(Level.SEVERE, "Unexpected exception executing query", e);
+						                          //Excepción inesperada consulta ejecución
 						res.setMessage(e.getMessage());
 						res.setStatus(500);
 					}
@@ -103,6 +135,7 @@ public class IoTService
 						}
 					}
 				}
+					
 				else
 				{
 					res.setMessage("Invalid request: " + validationResult);
@@ -130,9 +163,9 @@ public class IoTService
 		Date parsedDate = local.parse("2015-03-11 15:13:0011-0600");
 		
 		SimpleDateFormat gmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssss");
-		gmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-		
+		gmt.setTimeZone(TimeZone.getTimeZone("GMT"));	
 	    Timestamp timestamp = Timestamp.valueOf(gmt.format(parsedDate));
 		System.out.println(timestamp);
+		
 	}
 }

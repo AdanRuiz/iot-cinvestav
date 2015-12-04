@@ -15,7 +15,7 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title">Sensor</h3>
+				<h3 class="panel-title">Sensors</h3>
 			</div>
 			<div class="panel-body">
 				<div id="formContainer"></div>
@@ -26,3 +26,4 @@
 	</div>
 </body>
 </html>
+

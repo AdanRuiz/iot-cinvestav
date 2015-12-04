@@ -1,9 +1,11 @@
 package mx.cinvestav.gdl.iot.webpage.client;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
+import sun.awt.image.PixelConverter.Bgrx;
 import mx.cinvestav.gdl.iot.webpage.dto.ControllerDTO;
 import mx.cinvestav.gdl.iot.webpage.dto.ExperimentDTO;
 import mx.cinvestav.gdl.iot.webpage.dto.MeasureDTO;
@@ -15,6 +17,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -28,11 +31,13 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
+
 
 public class EpWPDatas extends IoTEntryPoint {
 	private DialogBox dbWait = new DialogBox();
@@ -43,6 +48,7 @@ public class EpWPDatas extends IoTEntryPoint {
 	private VerticalPanel formPictures = new VerticalPanel();
 
 	private ListBox lbTypeSensorAll = new ListBox();
+
 	private static final EntityStoreServiceAsync entityService = GWT.create(EntityStoreService.class);
 
 	private List<ControllerDTO> CONTROLLERS;
@@ -54,17 +60,21 @@ public class EpWPDatas extends IoTEntryPoint {
 	//private String measure_unit = "";
 
 	// Experiments
-	private int e = 2;
+	private int e = 1;
 
-	private FlexTable[] tableData = new FlexTable[e];
+	private FlexTable[] tableData= new FlexTable[e];
 	private ListBox[] lbController = new ListBox[e];
 	private ListBox[] lbSmartThing = new ListBox[e];
+	
 	private ListBox[] lbSensor = new ListBox[e];
 	private ListBox[] lbTypeSensor = new ListBox[e];
+	
 	private ListBox[] lbExperiment = new ListBox[e];
 	private TextArea[] taDescription = new TextArea[e];
+	
 	private TextArea[] taNotes = new TextArea[e];
 	private DateBox[] dbFrom = new DateBox[e];
+	
 	private DateBox[] dbTo = new DateBox[e];
 	private Button[] btGenerate = new Button[e];
 
@@ -73,40 +83,49 @@ public class EpWPDatas extends IoTEntryPoint {
 
 	private HorizontalPanel eAll = new HorizontalPanel();
 
-	@Override
+	 @Override
 	public void continueModuleLoad() {
 
-		showDialogWait();
+		 	showDialogWait();
+		
 
-		// Get all sensors's types
+		//Get all sensors's types
 		entityService.getSensorType(new AsyncCallback<List<SensorTypeDTO>>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
+			//	DialogBox
 				dbWait.hide();
 				// TODO:
 				Window.alert(caught.getMessage());
 			}
 
 			@Override
-			public void onSuccess(List<SensorTypeDTO> result) {
+			
+		public void onSuccess(List<SensorTypeDTO> result) {
+				
 				for (SensorTypeDTO c : result) {
 					// Name ID
-					lbTypeSensorAll.addItem(c.getName(), (c.getId() + ""));
+				/*ListBox=lbTypeSensorAll*/
+				lbTypeSensorAll.addItem(c.getName(), (c.getId() + ""));
+			
 				}
 
 			}
 		});
+	
+		
+		/*HorizontalPanel*/
+		eAll.setSpacing(10); 
 
-		eAll.setSpacing(10);
-
-		// Experiments
+		/*Experiments*/
 
 		for (int i = 0; i < e; i++) {
 			tableData[i] = new FlexTable();
 			lbSmartThing[i] = new ListBox();
 			lbSensor[i] = new ListBox();
 			lbTypeSensor[i] = new ListBox();
+			lbTypeSensor[i].setMultipleSelect(true);//multiples seleciones
 			lbExperiment[i] = new ListBox();
 			taDescription[i] = new TextArea();
 			taNotes[i] = new TextArea();
@@ -115,12 +134,12 @@ public class EpWPDatas extends IoTEntryPoint {
 			btGenerate[i] = new Button("Generate");
 			panelExperiment[i] = new VerticalPanel();
 			decoratorPanel[i] = new DecoratorPanel();
-
-			lbController[i] = new ListBox();
+            lbController[i] = new ListBox();
+            /*Etiqueta de selecion para Controller*/
 			lbController[i].addItem("Select...");
 
 			final int a = i;
-			// Get all controllers
+			/*Get all controllers*/
 			entityService.getEntity(new ControllerDTO(), null, new AsyncCallback<List<ControllerDTO>>() {
 
 				@Override
@@ -130,16 +149,18 @@ public class EpWPDatas extends IoTEntryPoint {
 
 				@Override
 				public void onSuccess(List<ControllerDTO> result) {
+					//DialogBox
 					dbWait.hide();
 					CONTROLLERS = result;
 
 					for (ControllerDTO c : CONTROLLERS) {
+						//lbController=ListBox
 						lbController[a].addItem(c.getName(), c.getId() + "");
 					}
 
 				}
 			});
-
+        //pinta los componentes ala tabla
 			tableData[i].setText(0, 0, "Controller: ");
 			tableData[i].setWidget(0, 1, lbController[i]);
 
@@ -155,7 +176,7 @@ public class EpWPDatas extends IoTEntryPoint {
 			tableData[i].setText(4, 0, "Notes: ");
 			tableData[i].setWidget(4, 1, taNotes[i]);
 
-			tableData[i].setText(5, 0, "Type sensor: ");
+			tableData[i].setText(5, 0, "Sensores: ");
 			tableData[i].setWidget(5, 1, lbTypeSensor[i]);
 
 			tableData[i].setText(6, 0, "From date: ");
@@ -163,7 +184,9 @@ public class EpWPDatas extends IoTEntryPoint {
 
 			tableData[i].setText(7, 0, "To date: ");
 			tableData[i].setWidget(7, 1, dbTo[i]);
-
+        
+	
+			
 			DefaultFormat format = new DateBox.DefaultFormat(DateTimeFormat.getFormat("MMMM dd yyyy"));
 			dbFrom[i].setFormat(format);
 			dbTo[i].setFormat(format);
@@ -180,6 +203,7 @@ public class EpWPDatas extends IoTEntryPoint {
 			panelExperiment[i].add(l1);
 			panelExperiment[i].add(tableData[i]);
 			panelExperiment[i].add(btGenerate[i]);
+			//Alinecion del boton
 			panelExperiment[i].setCellHorizontalAlignment(btGenerate[i], HasHorizontalAlignment.ALIGN_RIGHT);
 
 			decoratorPanel[i].add(panelExperiment[i]);
@@ -192,6 +216,8 @@ public class EpWPDatas extends IoTEntryPoint {
 
 		fillExperiments();
 	}
+
+//recorrido del for para el experimento
 
 	public void fillExperiments() {
 		for (int i = 0; i < e; i++) {
@@ -209,6 +235,7 @@ public class EpWPDatas extends IoTEntryPoint {
 						}
 
 						@Override
+				
 						public void onSuccess(List<SmartThingDTO> result) {
 
 							SMARTTHINGS = result;
@@ -216,6 +243,8 @@ public class EpWPDatas extends IoTEntryPoint {
 							lbSmartThing[x].addItem("Select...");
 							lbSmartThing[x].setEnabled(true);
 							for (SmartThingDTO c : SMARTTHINGS) {
+								//agrega el nombre y Id a Smarthing
+								
 								if (c.getIdcontroller() == idController) {
 									lbSmartThing[x].addItem(c.getName(), c.getId() + "");
 								}
@@ -233,36 +262,48 @@ public class EpWPDatas extends IoTEntryPoint {
 
 					final int idSmartThing = Integer.parseInt(lbSmartThing[x].getValue(lbSmartThing[x]
 							.getSelectedIndex()));
-
+     /////////////////////////////////////////////           
+					/*AsyncCallback representa un método de devolución de llamada que se llama cuando la operación es asincrónica.
+					El método de devolución de llamada toma un parámetro IAsyncResult*/ 
 					entityService.getEntity(new SensorDTO(), null, new AsyncCallback<List<SensorDTO>>() {
 
 						@Override
 						public void onFailure(Throwable caught) {
 							// TODO Auto-generated method stub
 						}
-
+						//result=SensorTypeDTO
 						@Override
 						public void onSuccess(List<SensorDTO> result) {
 							SENSORS = result;
+							//ListBox=lbSensor
 							lbSensor[x].clear();
 
 							lbTypeSensor[x].clear();
-							lbSensor[x].setEnabled(true);
+							//lbSensor[x].setEnabled(true);
 
 							for (SensorDTO c : SENSORS) {
 								if (c.getIdthing() == idSmartThing) {
 									// Name Id
-									lbSensor[x].addItem(getSensor_typeName(c.getSensor_type()), c.getSensor_type());
+									
+							
+								//	lbSensor[x].addItem(            getSensor_typeName(c.getSensor_type())    ,    c.getSensor_type()            );
+									String itemName = c.getDescription() ;
+									String itemId = c.getId().intValue()+"";// intValue() es un método de la clase Integer, que retorna el valor pero en tipo primitivo (int) 						
+									lbSensor[x].addItem(            itemName   ,    itemId           );
+				
 								}
 							}
 
-							ArrayList<String> typeSensor = new ArrayList<String>();
+							ArrayList<String> typeSensor = new ArrayList<String>();//filtra repetidos de la lista lbSensor en typeSensor
 
-							for (int i = 0; i < lbSensor[x].getItemCount(); i++) {
+							for (int i = 0; i < lbSensor[x].getItemCount(); i++) {//recorre todos los valores de lbsensor
 								if (!typeSensor.contains(lbSensor[x].getValue(i))) {
+								
+						
 									typeSensor.add(lbSensor[x].getValue(i));
 									// Name Id
 									lbTypeSensor[x].addItem(lbSensor[x].getItemText(i), lbSensor[x].getValue(i));
+							
 								}
 							}
 						}
@@ -281,7 +322,7 @@ public class EpWPDatas extends IoTEntryPoint {
 							lbExperiment[x].clear();
 
 							lbExperiment[x].addItem("Select..", "-1");
-						//	lbExperiment[x].addItem("None", "-1");
+						    //lbExperiment[x].addItem("None", "-1");
 
 							for (ExperimentDTO c : EXPERIMENT) {
 								if (c.getIdthing() == idSmartThing) {
@@ -338,28 +379,47 @@ public class EpWPDatas extends IoTEntryPoint {
 
 				public void onClick(ClickEvent event) {
 					dbWait.show();
-
+               //Inicio de graficacion			
 					GraphUtils.hideNVD3(x);
 					group = new HashMap<String, List<MeasureDTO>>();
 					formChart.clear();
 					formPictures.clear();
-					final String type = lbTypeSensor[x].getValue(lbTypeSensor[x].getSelectedIndex());
-					int s = 0;
+					//////////////////////////////////////////
+					//generacion de un Vector claselist o un arreglo de(selectedItems ="";)
+					Vector seleccionados=new Vector();
+					int numSensorSelected = 0;//contador inicializado desde cero
+				   for (int i = 0; i < lbTypeSensor[x].getItemCount(); i++) {
+				        if (lbTypeSensor[x].isItemSelected(i)) {
+				        	String []selectedSensor = new String[2];
+				        	selectedSensor[0]=(lbTypeSensor[x].getItemText(i));
+				            selectedSensor[1]= lbTypeSensor[x].getValue(i)+ "";
+				        	seleccionados.addElement(selectedSensor);
+				        	
+				        	numSensorSelected++;
+				     
+				        }
+				    }
 
+				   /*final String type = lbTypeSensor[x].getValue(lbTypeSensor[x].getSelectedIndex());
+		
 					for (int i = 0; i < SENSORS.size(); i++) {
 						if (SENSORS.get(i).getSensor_type().equals(type)) {
-							s++;
+						     //final String name = SENSORS.get(i).getName();
 						}
-					}
-
-					final int sf = s;
-
-					for (int i = 0; i < SENSORS.size(); i++) {
-						if (SENSORS.get(i).getSensor_type().equals(type)) {
-							//final String name = SENSORS.get(i).getName();
-							final String name = SENSORS.get(i).getDescription();
-							entityService.getSensorData(SENSORS.get(i).getId(), Integer.parseInt(lbExperiment[x].getSelectedValue()), new AsyncCallback<List<MeasureDTO>>() {
-
+					}*/
+				   final String type="";
+                    final int sf = numSensorSelected;
+					     for (int j = 0; j < seleccionados.size(); j++) {//se rrecorre lista de selecionados en 
+					    	 //vez de sensors cambio el for de sensors por lista de selecionados 
+  				 	
+  				    String []selectedSensorResult = (String[])seleccionados.elementAt(j);
+  				    //Obtiene id+-
+  					int i = Integer.parseInt(selectedSensorResult[1]);
+			               if(true){
+	
+		             final String name = selectedSensorResult[0]; 
+               entityService.getSensorData(i, Integer.parseInt(lbExperiment[x].getSelectedValue()), new AsyncCallback<List<MeasureDTO>>(){
+	
 										@Override
 										public void onFailure(Throwable caught) {
 											dbWait.hide();
@@ -432,8 +492,9 @@ public class EpWPDatas extends IoTEntryPoint {
 											}
 
 											// last result has arrived, process data
+											//sf=numSensorSelected
 											if (group.size() == sf) {
-												String data = GraphUtils.generateStringData(group);
+												String data = GraphUtils.generateStringData(group);//genera json
 												if (data == null) {
 
 													final DialogBox noDatas = new DialogBox();
@@ -443,7 +504,7 @@ public class EpWPDatas extends IoTEntryPoint {
 													Button close = new Button("Close");
 													close.addClickHandler(new ClickHandler() {
 														public void onClick(ClickEvent event) {
-															noDatas.hide();
+														noDatas.hide();
 														}
 													});
 													noDatas.setWidget(close);
@@ -451,8 +512,19 @@ public class EpWPDatas extends IoTEntryPoint {
 													noDatas.center();
 												} 
 												else 
-												{
-													GraphUtils.generateNVD3(getUnit(name), "Date", data, x, lbTypeSensor[x].getSelectedItemText());
+												{ 
+													//linea que genera la grafica con un solo titulo
+                                                  //GraphUtils.generateNVD3(getUnit(name), "Date", data, x, lbTypeSensor[x].getSelectedItemText());
+												
+													String graphTitle ="";
+													
+													if(sf ==1) 
+														graphTitle = lbTypeSensor[x].getSelectedItemText();
+													else
+														graphTitle = "Grafica de Sensores";
+														
+													 GraphUtils.generateNVD3(getUnit(name), "Date", data, x, graphTitle);
+								
 												}
 											}
 
@@ -471,17 +543,18 @@ public class EpWPDatas extends IoTEntryPoint {
 	{
 		for(SensorDTO s : SENSORS)
 		{
-			if(s.getDescription().equals(sensorName)) return s.getUnit();
+			if(s.getName().equals(sensorName)) return s.getUnit();
 		}
 		return "";
 	}
 
 	public String getSensor_typeName(String id) {
 		String name = "";
+		
 
 		for (int i = 0; i < lbTypeSensorAll.getItemCount(); i++) {
 			if (lbTypeSensorAll.getValue(i).equals(id)) {
-				name = lbTypeSensorAll.getItemText(i);
+			name = lbTypeSensorAll.getItemText(i);
 			}
 		}
 
@@ -491,6 +564,7 @@ public class EpWPDatas extends IoTEntryPoint {
 	public void showDialogWait() {
 
 		dbWait.setAnimationEnabled(true);
+		//style background
 		dbWait.setGlassEnabled(true);
 		dbWait.setModal(true);
 		dbWait.center();
@@ -506,8 +580,11 @@ public class EpWPDatas extends IoTEntryPoint {
 		dialogContents.add(image);
 		dialogContents.setCellHorizontalAlignment(image, HasHorizontalAlignment.ALIGN_CENTER);
 
+		//Dialogo de Box
 		dbWait.setWidget(dialogContents);
 		dbWait.show();
 
+
 	}
 }
+

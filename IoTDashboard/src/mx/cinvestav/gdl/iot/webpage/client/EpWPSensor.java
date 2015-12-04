@@ -52,6 +52,8 @@ public class EpWPSensor extends IoTEntryPoint {
 	@Override
 	public void continueModuleLoad() {
 		showDialogWait();
+		
+		//obtiene la lista de los SensorDTO
 		entityService.getEntity(new SensorDTO(), null, new AsyncCallback<List<SensorDTO>>()
 				{
 
@@ -79,7 +81,8 @@ public class EpWPSensor extends IoTEntryPoint {
 				});				
 		
 		//Get Type of sensor----------------------------------
-		entityService.getSensorType(new AsyncCallback<List<SensorTypeDTO>>()
+	
+	/*	entityService.getSensorType(new AsyncCallback<List<SensorTypeDTO>>()
 		{
 
 			@Override
@@ -91,6 +94,7 @@ public class EpWPSensor extends IoTEntryPoint {
 			}
 
 			@Override
+			//tipos SensorTypeDTO
 			public void onSuccess(List<SensorTypeDTO> result)
 			{
 	
@@ -100,7 +104,7 @@ public class EpWPSensor extends IoTEntryPoint {
 					lbTypeSensor.addItem(c.getName(),(c.getId() + ""));
 				}
 			}
-		});
+		}); */
 			
 		
 		
@@ -128,7 +132,7 @@ public class EpWPSensor extends IoTEntryPoint {
 		      }
 		    };
 		    
-	    TextColumn<SensorDTO> typeColumn = new TextColumn<SensorDTO>() {
+	  /*  TextColumn<SensorDTO> typeColumn = new TextColumn<SensorDTO>() {
 		      @Override
 		      public String getValue(SensorDTO c) {
 		    	 String type="";
@@ -141,9 +145,9 @@ public class EpWPSensor extends IoTEntryPoint {
 		    	 }
 		    	 return type;
 		      }
-		    };
+		    }; 
 		    
-	     typeColumn.setSortable(true);
+	     typeColumn.setSortable(true); */
 	        
 	     TextColumn<SensorDTO> unitColumn = new TextColumn<SensorDTO>() {
 		      @Override
@@ -219,7 +223,8 @@ public class EpWPSensor extends IoTEntryPoint {
   		     tableSensorDTO.addColumn(idColumn, "ID");
   			 tableSensorDTO.addColumn(nameColumn, "Name");
   			 tableSensorDTO.addColumn(descriptionColumn, "Description");
-  			 tableSensorDTO.addColumn(typeColumn, "Type");
+  			 
+  			// tableSensorDTO.addColumn(typeColumn, "Type");
   			tableSensorDTO.addColumn(unitColumn, "Unit");
   			tableSensorDTO.addColumn(altitudeColumn, "Altitude");
   			tableSensorDTO.addColumn(latitudeColumn, "Latitude");
@@ -246,12 +251,13 @@ public class EpWPSensor extends IoTEntryPoint {
   		          }
   		        });
   	
-  		sortHandler.setComparator(typeColumn,new Comparator<SensorDTO>() {
+  		
+  		/* sortHandler.setComparator(typeColumn,new Comparator<SensorDTO>() {
   			@Override
 		          public int compare(SensorDTO o1, SensorDTO o2) {
 		              return o1.getSensor_type().compareTo(o2.getSensor_type());
   			}
-		        });
+		        }); */
 	
   		sortHandler.setComparator(unitColumn,new Comparator<SensorDTO>() {
   			@Override

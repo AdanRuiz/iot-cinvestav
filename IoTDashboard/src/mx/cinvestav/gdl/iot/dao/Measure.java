@@ -10,6 +10,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "data")
+
+//clase que genera las get y set de Measure
 public class Measure
 {
 	@Id
@@ -89,7 +91,7 @@ public class Measure
 		return charted;
 	}
 
-	public void setCharted(Integer charted)
+	public void setCharted(Integer charted) 
 	{
 		this.charted = charted;
 	}

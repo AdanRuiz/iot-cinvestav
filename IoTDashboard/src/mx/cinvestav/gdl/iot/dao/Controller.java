@@ -14,7 +14,8 @@ import javax.persistence.Transient;
 public class Controller implements IoTEntity
 {
 	private static final long serialVersionUID = 6343944649241458664L;
-
+//clase que genera los metodos get y set de controller
+	
 	@Id
 	@GeneratedValue
 	@Column(name = "idcontroller")

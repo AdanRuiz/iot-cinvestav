@@ -162,6 +162,8 @@ public class EpSmartThing extends IoTEntryPoint
 		RootPanel.get("formContainer").add(formPanel);
 
 		showDialogWait();
+		
+		//obtiene la lista de los controladores
 		entityService.getEntity(new ControllerDTO(), null, new AsyncCallback<List<ControllerDTO>>()
 		{
 
@@ -262,6 +264,7 @@ public class EpSmartThing extends IoTEntryPoint
 	{
 		int id = Integer.parseInt(idSmartThing);
 		showDialogWait();
+		//obtiene la lista de SmartThingDTO
 		entityService.getEntity(new SmartThingDTO(), id, new AsyncCallback<List<SmartThingDTO>>()
 		{
 			@Override
@@ -280,6 +283,7 @@ public class EpSmartThing extends IoTEntryPoint
 		});
 	}
 
+	//rellena la lista de SmartThingData
 	private void fillSmartThingData(List<SmartThingDTO> result)
 	{
 		SmartThingDTO c = result.get(0);

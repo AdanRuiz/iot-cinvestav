@@ -18,10 +18,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-
 import mx.cinvestav.gdl.iot.webpage.client.DatabaseException;
-
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.cloud.sql.jdbc.Statement;
+import com.mysql.jdbc.ResultSet;
 
 public class DAO
 {
@@ -69,7 +69,7 @@ public class DAO
 		}
 		return emf.createEntityManager();
 	}
-
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 	public static <T extends IoTEntity> List<T> getEntity(Class<T> entityClass, Integer id) throws DatabaseException
 	{
 		EntityManager em = null;
@@ -131,11 +131,13 @@ public class DAO
 			if (properties != null)
 			{
 				for (IoTProperty p : properties)
-				{
+				{			
 					p.setParentId(entity.getId());
 					em.merge(p);
 				}
 			}
+			//commit se utiliza para al macenar los cambios en disco
+			
 			tx.commit();
 		}
 		catch (Exception e)
@@ -172,10 +174,14 @@ public class DAO
 			Root<T> from = cq.from(propertyClass);
 			ParameterExpression<Integer> parent = cb.parameter(Integer.class);
 			cq.select(from).where(cb.equal(from.get(getParentRowName(propertyClass)), parent));
+			
+	
 			TypedQuery<T> createQuery = em.createQuery(cq);
 			createQuery.setParameter(parent, parentId);
 			resultList = createQuery.getResultList();
 			return resultList;
+			
+			
 		}
 		catch (Exception e)
 		{
@@ -283,14 +289,17 @@ public class DAO
 			em = getEntityManager();
 			String query = "SELECT * FROM data.data WHERE idsensor=? and idexperiment=? and charted=1 order by measure_date";
 			Query q = em.createNativeQuery(query, Measure.class).setParameter(1, idsensor).setParameter(2, idexperiment);
-			List<Measure> resultList = (List<Measure>) q.getResultList();
+            List<Measure> resultList = (List<Measure>) q.getResultList();
 			return resultList;
+
 		}
 		catch (Exception e)
 		{
 			throw new DatabaseException("Database exception while inserting entity:" + e.getMessage(), e);
 		}
-		finally
+		
+
+	finally
 		{
 			if (em != null)
 			{
@@ -298,6 +307,66 @@ public class DAO
 			}
 		}
 	}
+	
+/* 
+Se generó un método  con el nombre getExperimentThing de tipo de dato entero, el cual contiene el parámetro idthing de tipo de dato Integer,
+se le asignó la sentencia del try catch para que pueda cachar las posibles excepciones al método creado, 
+cabe mencionar que el query se realizara desde la persistencia (EntityManager), ahora se le asigna a EntityManager una variable que en este caso es em, 
+el cual em es igual a null, de la siguiente manera se le dice que si idthing es igual a null lance el nuevo argumento "delete: must provide IoTEntity id",
+se declara la sentencia try catch y dentro de esta sentencia se realizó lo siguiente,  
+se declaró que em es igual a getEntityManager y se dio paso a realizar el query,
+lo cual se declara un tipo de dato String para el query en el cual se le asigna de que el query va ser igual al select que se le va hacer a la base de datos desde java.
+El cuery es el siguiente "SELECT MAX (idexperiment) as idexperiment FROM experiment where idthing=?";  
+la explicación del query es la siguiente:
+Se le dice que seleccione el máximo idexperimento el cual en este caso seleccionara el ultimo idexperiment que encuentre 
+en la base de datos, y va a realizar para la tabla experimento la búsqueda del idthing en este caso se deja abierta la búsqueda 
+por que puede ser el idthing=3 o el idthing=4, a hora se le asigna que  Query q es igual a getEntityManager
+y que cree el query y envié el parámetro 1 a idthing, el siguiente paso es: se debe realizar la conversión
+para que q=query obtenga los registros de la lista, el cual se Inicializo el id a 0 y de tipo de dato int (entero), 
+se le da la instrucción de que si es diferente (q) obtenga el resultado de la lista, 
+ahora se realiza la conversión para que (q) obtenga el- resultado de la lista,  
+se le agrega un sout para que realice  una impresión en consola para verificar si está entrando el valor,
+si el valor está entrando retornara el id.
+ */
+	
+	public static int getExperimentThing(Integer idthing) throws DatabaseException
+	{
+		EntityManager em = null;
+		if (idthing == null)
+		{
+			throw new IllegalArgumentException("delete: must provide IoTEntity id.");
+		}
+		     try {
+				    em = getEntityManager();
+				    
+				    String query = "SELECT MAX(idexperiment) as idexperiment FROM experiment where idthing=?";
+					Query q = em.createNativeQuery(query).setParameter(1, idthing);
+			
+					/*conversion para que q=query obtenga los registros de la lista*/
+					int id=0;/*Inicializo el id=0 de tipo de dato int*/
+					if(!q.getResultList().isEmpty()){/*Le damos la instrucion de que si es diferente (q) obtenga el resultado de la lista*/
+				    id=(int)q.getResultList().get(0);/* realizamos la conversion para que (q) obtenga el resultado de la lista */
+				       
+				    System.out.println("si entro el id"+id);/*Sout para imprimir en consola y saber si esta entrando el valor*/	    
+					 }
+				  else
+						System.out.println("No entro el id");/*o de lo contrario no esta entrando*/
+				    return id;
+			
+		     } 
+		     catch (Exception e) 
+		     {
+					throw new DatabaseException("Database exception while inserting entity:" + e.getMessage(), e);
+				}
+				finally
+				{
+					if (em != null)
+					{
+						em.close();
+					}
+
+				}
+	         }
 
 	public static User getUser(String username) throws DatabaseException
 	{

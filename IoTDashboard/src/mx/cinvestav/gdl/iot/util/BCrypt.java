@@ -60,6 +60,11 @@ import java.security.SecureRandom;
  * @author Damien Miller
  * @version 0.2
  */
+
+/*bcrypt es una función de derivación de claves para las contraseñas
+ * La función bcrypt es el algoritmo hash de la contraseña por defecto para BSD y otros sistemas incluyendo */
+
+
 public class BCrypt {
 	// BCrypt parameters
 	private static final int GENSALT_DEFAULT_LOG2_ROUNDS = 10;

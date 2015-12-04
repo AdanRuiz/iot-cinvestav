@@ -3,6 +3,7 @@ package mx.cinvestav.gdl.iot.cloudclient;
 
 public class Data
 {
+	//declaracion de variables
 	private String data;
 	private String time;
 	private String image;

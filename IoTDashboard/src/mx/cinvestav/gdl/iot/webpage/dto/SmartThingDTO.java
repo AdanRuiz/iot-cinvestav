@@ -11,10 +11,14 @@ public class SmartThingDTO implements IoTEntityDTO
 	private String name;
 	private String description;
 
+	//mapeo sensores
 	private Map<Integer, SensorDTO> sensors;
 
+	
+	//mapeo mediciones
 	private Map<Integer, MeasureDTO> measures;
 
+	//mapeo SmartThingPropertyDTO
 	private Map<Integer, SmartThingPropertyDTO> properties;
 
 	private Integer idcontroller;

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import mx.cinvestav.gdl.iot.webpage.dto.ControllerDTO;
 import mx.cinvestav.gdl.iot.webpage.dto.MeasureDTO;
 import mx.cinvestav.gdl.iot.webpage.dto.SensorDTO;
@@ -27,13 +28,14 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RootPanel;  
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.datepicker.client.DateBox.DefaultFormat;
 import com.google.gwt.view.client.ListDataProvider;
 
-
+//ESTA CLASE NO SE ESTA UTILIZANDO
 public class EpWPData extends IoTEntryPoint
 {
 	private DialogBox dbWait = new DialogBox();
@@ -46,6 +48,7 @@ public class EpWPData extends IoTEntryPoint
 	private ListBox lbController = new ListBox();
 
 	private ListBox lbSmartThing = new ListBox();
+
 
 	private ListBox lbSensor = new ListBox();
 	private ListBox lbTypeSensor = new ListBox();
@@ -75,7 +78,7 @@ public class EpWPData extends IoTEntryPoint
 			{
 				// TODO Auto-generated method stub
 			}
-
+           
 			@Override
 			public void onSuccess(List<ControllerDTO> result)
 			{
@@ -89,14 +92,16 @@ public class EpWPData extends IoTEntryPoint
 				}
 			}
 		});
-
-		tableData.setText(0, 0, "Controller: ");
+		
+		//checkBox1.setValue(true);
+		
+		tableData.setText(0, 0, "Contreller: ");
 		tableData.setWidget(0, 1, lbController);
 
 		tableData.setText(1, 0, "SmartThing: ");
 		tableData.setWidget(1, 1, lbSmartThing);
 
-		tableData.setText(2, 0, "Type sensor: ");
+		tableData.setText(2, 0, "Type Sensor: ");
 		tableData.setWidget(2, 1, lbTypeSensor);
 
 		tableData.setText(3, 0, "From date: ");
@@ -104,6 +109,10 @@ public class EpWPData extends IoTEntryPoint
 
 		tableData.setText(4, 0, "To date: ");
 		tableData.setWidget(4, 1, dbTo);
+		
+		/*tableData.setText(5, 0, "Series: ");
+		tableData.setWidget(5, 1, checkBox1);*/
+		
 
 		lbSmartThing.setEnabled(false);
 		lbSensor.setEnabled(false);
@@ -177,6 +186,7 @@ public class EpWPData extends IoTEntryPoint
 					{
 						SENSORS = result;
 						lbSensor.clear();
+						
 
 						lbTypeSensor.clear();
 						lbTypeSensor.addItem("Select...");
@@ -218,6 +228,7 @@ public class EpWPData extends IoTEntryPoint
 				formChart.clear();
 
 				final String type = lbTypeSensor.getItemText(lbTypeSensor.getSelectedIndex());
+			
 				int s=0;
 				
 				for (int i = 0; i < SENSORS.size(); i++){
@@ -225,7 +236,7 @@ public class EpWPData extends IoTEntryPoint
 						s++;
 					}	
 				}
-				
+				//sf=numSensorSelected
 				final int sf=s;
 				
 				
@@ -252,6 +263,7 @@ public class EpWPData extends IoTEntryPoint
 										if (group.size() == sf)
 										{
 											String data = GraphUtils.generateStringData(group);
+											
 											GraphUtils.generateNVD3(measure_unit, "", data, 1, "");
 										}
 										
@@ -287,7 +299,8 @@ public class EpWPData extends IoTEntryPoint
 							  			  @Override
 							  		          public int compare(MeasureDTO o1, MeasureDTO o2) {
 							  				  		
-							  		              return o1.getMeasure_date().compareTo(o2.getMeasure_date());
+							  		            return o1.getMeasure_date().compareTo(o2.getMeasure_date());
+							  		          
 							  		          }
 							  		        });
 								

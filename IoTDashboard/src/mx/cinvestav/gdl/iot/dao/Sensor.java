@@ -13,6 +13,11 @@ import javax.persistence.Transient;
 @Table(name = "sensor")
 public class Sensor implements IoTEntity
 {
+	
+	//serialVersionUID:Es un número de versión que posee cada clase Serializable, el cual es usado en la deserialización 
+	//para verificar que el emisor y el receptor de un objeto serializado mantienen una compatibilidad 
+	//en lo que a serialización se refiere con respecto a la clases que tienen cargadas (el emisor y el receptor).
+	
 	private static final long serialVersionUID = -1165471382042735357L;
 
 	@Id
@@ -33,6 +38,9 @@ public class Sensor implements IoTEntity
 	private double altitude;
 	@Transient
 	transient private Map<Integer, Measure> measures;
+	
+	//transient sirven para demarcar el carácter temporal o transitorio de dicha variable,
+	//es decir, que no siempre se tendrá acceso al valor de la variable.
 	@Transient
 	transient private Map<Integer, SensorProperty> properties;
 	private Integer idthing;
@@ -131,7 +139,7 @@ public class Sensor implements IoTEntity
 	{
 		this.altitude = altitude;
 	}
-
+//mapeo para mediciones
 	public Map<Integer, Measure> getMeasures()
 	{
 		return measures;
@@ -141,7 +149,7 @@ public class Sensor implements IoTEntity
 	{
 		this.measures = measures;
 	}
-
+//mapeo para la propiedad del sensor
 	public Map<Integer, SensorProperty> getProperties()
 	{
 		return properties;
